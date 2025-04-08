@@ -1,5 +1,6 @@
 import pytest
 
+from dao.model.director import Director
 from service.director import DirectorService
 
 
@@ -18,3 +19,17 @@ class TestDirectorService:
         directors = self.director_service.get_all()
         assert directors[0].name == "John"
         assert len(directors) == 3
+
+    def test_create(self):
+        director_data = {"name": "Markus"}
+        director = self.director_service.create(director_data)
+        assert isinstance(director, Director) == True
+        assert director.id is not None
+
+    def test_update(self):
+        markus = {"id": 5, "name": "Markus"}
+        self.director_service.update(markus)
+
+    def test_delete(self):
+        self.director_service.delete(1)
+

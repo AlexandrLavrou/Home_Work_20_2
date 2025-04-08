@@ -16,4 +16,17 @@ class GenreDAO:
         self.session.add(genre)
         self.session.commit()
 
+    def update(self, genre):
+
+        self.session.add(genre)
+        self.session.commit()
+
+        return genre
+
+    def delete(self, genre_id):
+        genre = self.get_one(genre_id)
+
+        self.session.delete(genre)
+        self.session.commit()
+
 
