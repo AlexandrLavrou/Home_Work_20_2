@@ -23,6 +23,7 @@ def director_dao():
     director_dao.create = MagicMock(return_value=Director(id=3))
     director_dao.update = MagicMock()
     director_dao.delete = MagicMock()
+
     return director_dao
 
 @pytest.fixture()
@@ -80,3 +81,5 @@ def movie_dao():
     movie_dao.create = MagicMock(return_value=Movie(id=3))
     movie_dao.update = MagicMock()
     movie_dao.delete = MagicMock()
+
+    return movie_dao

@@ -16,7 +16,7 @@ class MovieService:
 
     def get_all(self, filters=None):
 
-        movies = self.dao.session.query(Movie)
+        movies = self.dao.get_all()
 
         if filters:
             if 'director_id' in filters:
@@ -26,7 +26,7 @@ class MovieService:
             if 'year' in filters:
                 movies = movies.filter(Movie.year == filters['year'])
 
-        return movies.all()
+        return movies
 
     def update(self, data):
         movie_id = data.get("id")
@@ -34,8 +34,9 @@ class MovieService:
 
         self.dao.update(movie)
 
-    def update2(self, movie_id, data):
+    def update2(self, data):
         """Update an existing movie."""
+        movie_id = data.get("id")
         movie = self.dao.get_one(movie_id)
         if not movie:
             raise ValueError(f"Movie with ID {movie_id} not found.")
