@@ -16,7 +16,7 @@ class AuthService:
     def generate_access_token(self, user):
         min30 = datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=30)
         user_data = {
-            "username": user.username,
+            "email": user.email,
             "role": user.role,
             "exp": calendar.timegm(min30.timetuple())
         }
@@ -26,7 +26,7 @@ class AuthService:
     def generate_refresh_token(self, user):
         days130 = datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=130)
         user_data = {
-            "username": user.username,
+            "email": user.email,
             "role": user.role,
             "exp": calendar.timegm(days130.timetuple())
         }

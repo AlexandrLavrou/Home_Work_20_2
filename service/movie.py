@@ -13,20 +13,20 @@ class MovieService:
     def create(self,data):
         return self.dao.create(data)
 
-
-    def get_all(self, filters=None):
-
-        movies = self.dao.get_all()
+    def get_all(self, filters=None, page=1, per_page=12):
+        query = self.dao.get_all()
 
         if filters:
             if 'director_id' in filters:
-                movies = movies.filter(Movie.director_id == filters['director_id'])
+                query = query.filter(Movie.director_id == filters['director_id'])
             if 'genre_id' in filters:
-                movies = movies.filter(Movie.genre_id == filters['genre_id'])
+                query = query.filter(Movie.genre_id == filters['genre_id'])
             if 'year' in filters:
-                movies = movies.filter(Movie.year == filters['year'])
+                query = query.filter(Movie.year == filters['year'])
 
-        return movies
+        total = query.count()
+        movies = query.offset((page - 1) * per_page).limit(per_page).all()
+        return movies, total
 
     def update(self, data):
         movie_id = data.get("id")

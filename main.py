@@ -1,5 +1,7 @@
 
 from flask import Flask
+from flask_cors import CORS
+from flask_migrate import Migrate
 from flask_restx import Api
 
 from config import Config
@@ -12,17 +14,23 @@ from views.movie import movie_ns
 from views.user import user_ns
 
 
-def create_app(config: Config) -> Flask:
+# def create_app(config: Config = Config(), **kwargs) -> Flask:
+#     application = Flask(__name__)
+#     application.config.from_object(config)
+#     application.app_context().push()
+#     return application
 
-    application = Flask(__name__)
-    application.config.from_object(config)
-    application.app_context().push()
+def create_app(config=None):
+    from config import Config
+    app = Flask(__name__)
+    app.config.from_object(config or Config)
+    return app
 
-    return application
 
 
 def configure_app(app: Flask):
     init_db(app)
+    migrate = Migrate(app, db)
     api = Api(app)
     api.add_namespace(movie_ns, path='/movies')
     api.add_namespace(director_ns, path='/directors')

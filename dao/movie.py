@@ -3,8 +3,6 @@
 from dao.model.movie import Movie
 
 
-# Например
-
 class MovieDAO:
     def __init__(self,session):
         self.session = session
@@ -20,7 +18,7 @@ class MovieDAO:
         return movie
 
     def get_all(self):
-        return self.session.query(Movie).all()
+        return self.session.query(Movie)
 
     def get_by_director(self,director_id):
         movies = self.get_all().filter(Movie.director_id == director_id)

@@ -20,11 +20,11 @@ class UsersView(Resource):
     def post(self):
         user_data = request.json
 
-        if user_service.get_by_name(user_data.get('username')):
-            abort(409, f"User with username: {user_data.get('username')} already exist")
+        if user_service.get_by_name(user_data.get('email')):
+            abort(409, f"User with email: {user_data.get('email')} already exist")
 
-        if None in [user_data.get('username'), user_data.get('password'), user_data.get('role')]:
-            abort(400, "username, password and role can`t be null")
+        if None in [user_data.get('email'), user_data.get('password'), user_data.get('role')]:
+            abort(400, "email, password and role can`t be null")
 
         user = user_service.create(user_data)
         return "", 201, {"Location": f"{request.base_url}/{user.id}"}

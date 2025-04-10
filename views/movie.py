@@ -21,6 +21,9 @@ class MoviesView(Resource):
         genre_id = request.args.get('genre_id', type=int)
         year = request.args.get('year', type=int)
 
+        page = request.args.get('page', default=1, type=int)
+        per_page = request.args.get('per_page', default=12, type=int)
+
         filters={}
         if director_id:
             filters['director_id'] = director_id
@@ -29,9 +32,13 @@ class MoviesView(Resource):
         if year:
             filters['year'] = year
 
-
-        movies = movie_service.get_all(filters)
-        return movies_schema.dump(movies), 200
+        movies, total = movie_service.get_all(filters, page, per_page)
+        return {
+            "movies": movies_schema.dump(movies),
+            "total": total,
+            "page": page,
+            "per_page": per_page
+        }, 200
 
     def post(self):
         request_json = request.json
