@@ -4,7 +4,7 @@ import hmac
 
 from flask_restx import abort
 
-from constants import PWD_HASH_SALT, PWD_HASH_ITERATIONS, PWD_ALGO, TOKEN_ALGO, TOKEN_SECRET
+from constants import PWD_HASH_SALT, PWD_HASH_ITERATIONS, PWD_ALGO
 from dao.user import UserDAO
 
 
@@ -16,8 +16,8 @@ class UserService:
     def get_one(self,user_id):
         return self.dao.get_one(user_id)
 
-    def get_by_name(self, username):
-        return self.dao.get_by_name(username)
+    def get_by_email(self, email):
+        return self.dao.get_by_email(email)
 
     def get_all(self):
         return self.dao.get_all()
@@ -47,7 +47,7 @@ class UserService:
 
     def check_user(self, user_data, is_refresh=False):
 
-        user = self.get_by_name(user_data.get("username"))
+        user = self.get_by_email(user_data.get("email"))
         if not user:
             abort(400)
         if not is_refresh:

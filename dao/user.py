@@ -35,6 +35,6 @@ class UserDAO:
         users = self.session.query(User).filter(User.role == role).first()
         return users
 
-    def get_by_name(self, username):
-        user = self.session.query(User).filter(User.username == username).first()
+    def get_by_email(self, email):
+        user = self.session.query(User).filter(User.email == email).first()
         return user

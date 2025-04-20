@@ -20,7 +20,7 @@ class UsersView(Resource):
     def post(self):
         user_data = request.json
 
-        if user_service.get_by_name(user_data.get('email')):
+        if user_service.get_by_email(user_data.get('email')):
             abort(409, f"User with email: {user_data.get('email')} already exist")
 
         if None in [user_data.get('email'), user_data.get('password'), user_data.get('role')]:

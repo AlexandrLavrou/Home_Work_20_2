@@ -1,3 +1,5 @@
+import datetime
+
 from dao.model.movie import Movie
 from dao.movie import MovieDAO
 
@@ -13,7 +15,7 @@ class MovieService:
     def create(self,data):
         return self.dao.create(data)
 
-    def get_all(self, filters=None, page=1, per_page=12):
+    def get_all(self, filters=None, page=1, per_page=12, status=None):
         query = self.dao.get_all()
 
         if filters:
@@ -24,9 +26,21 @@ class MovieService:
             if 'year' in filters:
                 query = query.filter(Movie.year == filters['year'])
 
-        total = query.count()
+                # Handle status=new
+        if status == 'new':
+            two_weeks_ago = datetime.datetime.now(datetime.UTC) - datetime.timedelta(weeks=2)
+            new_movies_query = query.filter(Movie.date_added >= two_weeks_ago).order_by(Movie.date_added.desc())
+            new_movies = new_movies_query.offset((page - 1) * per_page).limit(per_page).all()
+
+            if new_movies:
+                return new_movies
+
+            # Fallback to latest added movies if no new ones found
+            query = query.order_by(Movie.date_added.desc())
+
+            # Default sorting if no status or no new movies
         movies = query.offset((page - 1) * per_page).limit(per_page).all()
-        return movies, total
+        return movies
 
     def update(self, data):
         movie_id = data.get("id")

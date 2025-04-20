@@ -1,6 +1,7 @@
-# здесь контроллеры/хендлеры/представления для обработки запросов (flask ручки). сюда импортируются сервисы из пакета service
+
+
 from flask import request, jsonify
-# Пример
+
 from flask_restx import Resource, Namespace, ValidationError
 
 from container import movie_service
@@ -21,6 +22,7 @@ class MoviesView(Resource):
         genre_id = request.args.get('genre_id', type=int)
         year = request.args.get('year', type=int)
 
+        status = request.args.get('status', type=str)
         page = request.args.get('page', default=1, type=int)
         per_page = request.args.get('per_page', default=12, type=int)
 
@@ -32,10 +34,9 @@ class MoviesView(Resource):
         if year:
             filters['year'] = year
 
-        movies, total = movie_service.get_all(filters, page, per_page)
+        movies = movie_service.get_all(filters, page, per_page, status=status)
         return {
             "movies": movies_schema.dump(movies),
-            "total": total,
             "page": page,
             "per_page": per_page
         }, 200
