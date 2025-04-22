@@ -1,49 +1,43 @@
 from flask import request
-from flask_restx import Namespace, Resource, abort
+from flask_restx import Namespace, Resource
 
-from container import user_service
+from container import auth_service, user_service
 from dao.model.user import UserSchema
-from utils.auth import admin_required, auth_required
+from utils.auth import auth_required
 
-user_ns = Namespace('users')
+user_ns = Namespace('user')
 
 user_schema = UserSchema()
-users_schema = UserSchema(many=True)
-
 @user_ns.route('/')
-class UsersView(Resource):
-    @auth_required
-    def get(self):
-        users = user_service.get_all()
-        return users_schema.dump(users), 200
-
-    def post(self):
-        user_data = request.json
-
-        if user_service.get_by_email(user_data.get('email')):
-            abort(409, f"User with email: {user_data.get('email')} already exist")
-
-        if None in [user_data.get('email'), user_data.get('password'), user_data.get('role')]:
-            abort(400, "email, password and role can`t be null")
-
-        user = user_service.create(user_data)
-        return "", 201, {"Location": f"{request.base_url}/{user.id}"}
-
-@user_ns.route('/<int:user_id>')
 class UserView(Resource):
     @auth_required
-    def get(self, user_id):
-        user = user_service.get_one(user_id)
-        return user_schema.dump(user), 200
+    def get(self):
 
-    @admin_required
-    def delete(self, user_id):
-        deleted = user_service. delete(user_id)
-        if deleted:
-            return "", 204
+        token = auth_service.get_token_from_headers()
+        user = auth_service.get_user_from_token(token)
 
-        return "", 404
+        return user
 
+    @auth_required
+    def patch(self):
+        user_data = request.json
+
+        token = auth_service.get_token_from_headers()
+        user = auth_service.get_user_from_token(token)
+
+        if user_data.get('name'):
+            user.name = user_data.get('name')
+        if user_data.get('surname'):
+            user.surname = user_data.get('surname')
+        if user_data.get('favorite_genre'):
+            user.favorite_genre = user_data.get('favorite_genre')
+
+        user_service.update(user)
+
+
+    @auth_required
+    def put(self):
+        pass
 
 
 

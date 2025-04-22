@@ -42,11 +42,3 @@ def admin_required(func):
         return func(*args, **kwargs)
     return wrapper
 
-
-
-
-
-
-
-
-

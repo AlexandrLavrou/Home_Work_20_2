@@ -10,7 +10,7 @@ from views.auth import auth_ns
 from views.director import director_ns
 from views.genre import genre_ns
 from views.movie import movie_ns
-from views.user import user_ns
+from views.users import users_ns
 
 
 # def create_app(config: Config = Config(), **kwargs) -> Flask:
@@ -29,13 +29,13 @@ def create_app(config=None):
 
 def configure_app(app: Flask):
     init_db(app)
-    migrate = Migrate(app, db)
+    Migrate(app, db)
     api = Api(app)
     api.add_namespace(movie_ns, path='/movies')
     api.add_namespace(director_ns, path='/directors')
     api.add_namespace(genre_ns, path='/genre')
     api.add_namespace(auth_ns, path='/auth')
-    api.add_namespace(user_ns, path='/users')
+    api.add_namespace(users_ns, path='/users')
 
 
 

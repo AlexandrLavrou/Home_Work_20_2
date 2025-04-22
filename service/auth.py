@@ -3,9 +3,12 @@ import datetime
 
 
 import jwt
+from flask import request
 from flask_restx import abort
+from werkzeug.exceptions import Unauthorized
 
 from constants import TOKEN_SECRET, TOKEN_ALGO
+from container import user_service
 from service.user import UserService
 
 
@@ -22,6 +25,25 @@ class AuthService:
         }
         access_token = jwt.encode(user_data, TOKEN_SECRET, TOKEN_ALGO)
         return access_token
+
+    def get_token_from_headers(self):
+        auth_header = request.headers.get("Authorization")
+
+        if not auth_header:
+            raise Unauthorized("Authorisation header is missing")
+
+        token = auth_header.split("Bearer ")[-1].strip()
+        return token
+
+    def get_user_from_token(self,token):
+
+        user_data = jwt.decode(token, TOKEN_SECRET, TOKEN_ALGO)
+        if not user_data:
+            abort(401)
+        email = user_data.get("email")
+        user = user_service.get_by_email(email)
+        return user
+
 
     def generate_refresh_token(self, user):
         days130 = datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=130)
