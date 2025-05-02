@@ -8,7 +8,6 @@ from flask_restx import abort
 from werkzeug.exceptions import Unauthorized
 
 from constants import TOKEN_SECRET, TOKEN_ALGO
-from container import user_service
 from service.user import UserService
 
 
@@ -32,7 +31,7 @@ class AuthService:
         if not auth_header:
             raise Unauthorized("Authorisation header is missing")
 
-        token = auth_header.split("Bearer ")[-1].strip()
+        token = auth_header.split("Bearer ")[-1] #.strip()
         return token
 
     def get_user_from_token(self,token):
@@ -41,7 +40,7 @@ class AuthService:
         if not user_data:
             abort(401)
         email = user_data.get("email")
-        user = user_service.get_by_email(email)
+        user = self.user_service.get_by_email(email)
         return user
 
 
@@ -59,7 +58,8 @@ class AuthService:
         user = self.user_service.check_user(user_data)
 
         password_hash = user.password
-        if not self.user_service.compare_passwords(password_hash, user_data):
+        other_password = user_data.get("password")
+        if not self.user_service.compare_passwords(password_hash, other_password):
             abort(401)
 
         return {

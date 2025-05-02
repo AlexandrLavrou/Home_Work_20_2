@@ -28,9 +28,9 @@ class UserService:
         data["password"] = self.get_hash(user_pass)
         return self.dao.create(data)
 
-    def update(self, user_data):
+    def update(self, user):
 
-        return self.dao.update(user_data)
+        return self.dao.update(user)
 
     def delete(self, user_id):
         return self.dao.delete(user_id)
@@ -45,20 +45,30 @@ class UserService:
         ))
     # .decode("utf-8", "ignore"))
 
+    def update_password(self, user_id, password):
+
+        user = self.get_one(user_id)
+        user.password = self.get_hash(password)
+        updated_user = self.update(user)
+
+        return updated_user
+
+
+
     def check_user(self, user_data, is_refresh=False):
 
         user = self.get_by_email(user_data.get("email"))
+        other_password = user_data.get("password")
+
         if not user:
             abort(400)
         if not is_refresh:
-            if not self.compare_passwords(user.password, user_data):
+            if not self.compare_passwords(user.password, other_password):
                 abort(401, "Invalid username or password")
         return user
 
-    def compare_passwords(self, password_hash, user_data):
+    def compare_passwords(self, password_hash, other_password):
         decoded_password_hash = base64.b64decode(password_hash)
-
-        other_password = user_data.get("password")
         user_password = base64.b64decode(self.get_hash(other_password))
         return hmac.compare_digest(decoded_password_hash, user_password)
 

@@ -30,6 +30,8 @@ class MovieSchema(Schema):
     year = fields.Int()
     rating = fields.Float()
     date_added = fields.DateTime()
+    genre_id = fields.Int()
+    director_id = fields.Int()
 
     genre = fields.Pluck('GenreSchema','name')
     director = fields.Pluck('DirectorSchema', 'name')

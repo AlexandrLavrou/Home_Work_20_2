@@ -8,8 +8,10 @@ from load_data import DataLoader
 from setup_db import db, init_db
 from views.auth import auth_ns
 from views.director import director_ns
+from views.favorite import favorite_ns
 from views.genre import genre_ns
 from views.movie import movie_ns
+from views.user import user_ns
 from views.users import users_ns
 
 
@@ -36,6 +38,8 @@ def configure_app(app: Flask):
     api.add_namespace(genre_ns, path='/genre')
     api.add_namespace(auth_ns, path='/auth')
     api.add_namespace(users_ns, path='/users')
+    api.add_namespace(user_ns, path='/user')
+    api.add_namespace(favorite_ns, path='/favorites')
 
 
 
