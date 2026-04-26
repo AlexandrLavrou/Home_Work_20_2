@@ -62,3 +62,4 @@ class MovieService:
 
     def delete(self, movie_id):
         return self.dao.delete(movie_id)
+

@@ -15,8 +15,9 @@ class FavoriteService:
     def delete(self, favorite_id):
         return self.dao.delete(favorite_id)
 
-    def get_by_movie(self, movie_id, user_id):
+    def get_by_movie_and_user(self, movie_id, user_id):
         return self.dao.get_by_movie_and_user(movie_id, user_id)
+
 
     def get_by_user(self, user_id):
         return self.dao.get_by_user(user_id)

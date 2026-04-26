@@ -18,6 +18,9 @@ def check_token(auth_header):
     except Exception as e:
         abort(401, f"{e}")
 
+def check_email(user_data):
+    pass
+
 
 def auth_required(func):
     @wraps(func)

@@ -1,24 +1,36 @@
 from flask import request
-from flask_restx import Namespace, Resource, abort
+from flask_restx import Namespace, Resource, abort, fields
 
 from container import auth_service, user_service
 from dao.model.user import UserSchema
 from utils.auth import auth_required
 
-user_ns = Namespace('user')
+user_ns = Namespace('user', description='Current user')
+
+user_model =user_ns.model("User", {
+    "id": fields.Integer(readOnly=True),
+    "email": fields.String(required=True),
+    "password": fields.String(required=True),
+    "name": fields.String,
+    "surname": fields.String,
+    "favorite_genre": fields.Integer
+})
+
 
 user_schema = UserSchema()
 @user_ns.route('/')
 class UserView(Resource):
     @auth_required
+    @user_ns.marshal_with(user_model)
     def get(self):
-
+        """Getting an information about current user"""
         token = auth_service.get_token_from_headers()
         user = auth_service.get_user_from_token(token)
 
-        return user_schema.dump(user), 200
+        return user, 200
 
     @auth_required
+    @user_ns.expect(user_model)
     def patch(self):
         user_data = request.json
 
@@ -33,6 +45,7 @@ class UserView(Resource):
             user.favorite_genre = user_data.get('favorite_genre')
 
         user_service.update(user)
+        return "", 204
 
 @user_ns.route('/password')
 class UserPasswordView(Resource):

@@ -1,5 +1,5 @@
 
-from flask import Flask
+from flask import Flask, redirect
 from flask_migrate import Migrate
 from flask_restx import Api
 
@@ -25,6 +25,9 @@ def create_app(config=None):
     from config import Config
     app = Flask(__name__)
     app.config.from_object(config or Config)
+    @app.route('/')
+    def index():
+        return redirect('/swagger')
     return app
 
 
@@ -32,7 +35,13 @@ def create_app(config=None):
 def configure_app(app: Flask):
     init_db(app)
     Migrate(app, db)
-    api = Api(app)
+    api = Api(
+        app,
+        version="1.0",
+        title="Movies API",
+        description="API для работы с фильмами, жанрами, режиссерами и избранным",
+        doc="/swagger"  # путь к Swagger UI
+    )
     api.add_namespace(movie_ns, path='/movies')
     api.add_namespace(director_ns, path='/directors')
     api.add_namespace(genre_ns, path='/genre')

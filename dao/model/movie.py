@@ -36,7 +36,3 @@ class MovieSchema(Schema):
     genre = fields.Pluck('GenreSchema','name')
     director = fields.Pluck('DirectorSchema', 'name')
 
-
-
-
-

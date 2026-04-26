@@ -2,12 +2,28 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from main import create_app, configure_app
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from dao.user import UserDAO
+from setup_db import db as real_db
+
 from dao.director import DirectorDAO
 from dao.genre import GenreDAO
 from dao.model.director import Director
 from dao.model.genre import Genre
 from dao.model.movie import Movie
 from dao.movie import MovieDAO
+
+
+@pytest.fixture()
+def app():
+    app = create_app()
+    configure_app(app)
+    app.config.update({"TESTING": True})
+    yield app
 
 
 @pytest.fixture()
@@ -83,3 +99,56 @@ def movie_dao():
     movie_dao.delete = MagicMock()
 
     return movie_dao
+
+# 1. Create a test DB engine (in-memory SQLite)
+@pytest.fixture(scope="session")
+def engine():
+    return create_engine("sqlite:///:memory:", echo=False)
+
+# 2. Create tables in the test DB
+@pytest.fixture(scope="session")
+def tables(engine):
+    real_db.metadata.create_all(engine)
+    yield
+    real_db.metadata.drop_all(engine)
+
+# 3. Create a SQLAlchemy session
+@pytest.fixture()
+def session(engine, tables):
+    connection = engine.connect()
+    transaction = connection.begin()
+
+    Session = sessionmaker(bind=connection)
+    session = Session()
+
+    yield session
+
+    session.close()
+    transaction.rollback()
+    connection.close()
+
+
+# 4. Fixture for the UserDAO
+@pytest.fixture()
+def user_dao(session):
+    return UserDAO(session)
+
+
+@pytest.fixture()
+def client(app):
+    return app.test_client()
+
+@pytest.fixture()
+def auth_headers(client):
+    # Предположим, что у тебя есть юзер: email="test@example.com", password="test123"
+    login_data = {
+        "email": "test@example.com",
+        "password": "test123"
+    }
+    response = client.post("/auth/login", json=login_data)
+    assert response.status_code == 200
+    token = response.json.get("access_token")  # или "token", в зависимости от реализации
+
+    return {
+        "Authorization": f"Bearer {token}"
+    }

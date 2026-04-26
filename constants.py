@@ -1,13 +1,9 @@
-# этот файл для глобальных констант. чтобы не хардкодить строки/числа в коде, выносите их сюда.
-# например вместо C:\\Windows в коде, создайте константу WINDOWS_PATH здесь и присвойте ей значение
+import os
 
-# Пример
-
-# CONSTANT_NAME = "value"
-# LOG_DIR = "logs"
 PWD_ALGO = "sha256"
-PWD_HASH_SALT = b'op$kS#mAIH%ij%niYT&VCOdf*OPMythUo%iumuUEI$Omik%YVIbdU*HB<23'
-PWD_HASH_ITERATIONS = 100_000
+PWD_HASH_SALT = os.getenv("PWD_HASH_SALT", "").encode()  # will load from env
+PWD_HASH_ITERATIONS = int(os.getenv("PWD_HASH_ITERATIONS", "100000"))
 
+# JWT tokens
 TOKEN_ALGO = "HS256"
-TOKEN_SECRET = "psMPYB*%$#g8iBIsdnu8@sdv2345GD"
+TOKEN_SECRET = os.getenv("TOKEN_SECRET", "changeme")

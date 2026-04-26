@@ -1,10 +1,15 @@
-from flask_restx import Resource, Namespace
+from flask_restx import Resource, Namespace, fields
 
 from container import genre_service
 from dao.model.genre import GenreSchema
 from utils.auth import auth_required
 
 genre_ns = Namespace('genres')
+
+genre_model = genre_ns.model("Genre", {
+    "id": fields.Integer(readOnly=True, description="ID жанра"),
+    "name": fields.String(required=True, description="Название жанра")
+})
 
 genres_schema = GenreSchema(many=True)
 genre_schema = GenreSchema()
