@@ -6,6 +6,7 @@ from flask_restx import Api
 from config import Config
 from load_data import DataLoader
 from setup_db import db, init_db
+
 from views.auth import auth_ns
 from views.director import director_ns
 from views.favorite import favorite_ns
@@ -15,33 +16,28 @@ from views.user import user_ns
 from views.users import users_ns
 
 
-# def create_app(config: Config = Config(), **kwargs) -> Flask:
-#     application = Flask(__name__)
-#     application.config.from_object(config)
-#     application.app_context().push()
-#     return application
-
 def create_app(config=None):
-    from config import Config
     app = Flask(__name__)
     app.config.from_object(config or Config)
+
+    # --- базовый роут ---
     @app.route('/')
     def index():
         return redirect('/swagger')
-    return app
 
-
-
-def configure_app(app: Flask):
+    # --- DB ---
     init_db(app)
     Migrate(app, db)
+
+    # --- API / Swagger ---
     api = Api(
         app,
         version="1.0",
         title="Movies API",
         description="API для работы с фильмами, жанрами, режиссерами и избранным",
-        doc="/swagger"  # путь к Swagger UI
+        doc="/swagger"
     )
+
     api.add_namespace(movie_ns, path='/movies')
     api.add_namespace(director_ns, path='/directors')
     api.add_namespace(genre_ns, path='/genre')
@@ -50,22 +46,20 @@ def configure_app(app: Flask):
     api.add_namespace(user_ns, path='/user')
     api.add_namespace(favorite_ns, path='/favorites')
 
+    # --- загрузка данных (осторожно в проде!) ---
+    # with app.app_context():
+    #     try:
+    #         DataLoader.load_movies(Config.MOVIE_PATH)
+    #         DataLoader.load_director(Config.DIRECTOR_PATH)
+    #         DataLoader.load_genre(Config.GENRE_PATH)
+    #         print("Data successfully loaded.")
+    #     except Exception as e:
+    #         print(f"Data loading error: {e}")
+
+    return app
 
 
-def load_files(app):
-    with app.app_context():
-
-        try:
-            DataLoader.load_movies(Config.MOVIE_PATH)
-            DataLoader.load_director(Config.DIRECTOR_PATH)
-            DataLoader.load_genre(Config.GENRE_PATH)
-            print("Data successfully loaded.")
-        except Exception as e:
-            print(f"Data loading error: {e}")
-#
+# --- локальный запуск ---
 if __name__ == '__main__':
-    app_config = Config()
-    app = create_app(app_config)
-    configure_app(app)
-    load_files(app)
+    app = create_app()
     app.run(debug=True)
