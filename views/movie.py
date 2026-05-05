@@ -2,7 +2,8 @@
 
 from flask import request, jsonify
 
-from flask_restx import Resource, Namespace, ValidationError, fields
+from flask_restx import Resource, Namespace, fields
+from marshmallow import ValidationError
 
 from container import movie_service
 from dao.model.movie import MovieSchema
@@ -12,12 +13,12 @@ movie_ns = Namespace('movies', description="Movie management")
 
 movie_model = movie_ns.model("Movie", {
     "id": fields.Integer(readonly=True, description="movie ID"),
-    "title": fields.Integer(required=True, description="movie title"),
-    "description": fields.Integer(required=True, description="description"),
-    "trailer": fields.Integer(description="link to trailer"),
+    "title": fields.String(required=True, description="movie title"),
+    "description": fields.String(required=True, description="description"),
+    "trailer": fields.String(description="link to trailer"),
     "year": fields.Integer(description="year"),
-    "rating": fields.Integer(description="rating"),
-    "date_added": fields.Integer(description="data added"),
+    "rating": fields.Float(description="rating"),
+    "date_added": fields.DateTime(description="data added"),
     "genre_id": fields.Integer(description="ID genre"),
     "director_id": fields.Integer(description="ID director")
     })
@@ -41,7 +42,7 @@ class MoviesView(Resource):
     def get(self):
         """Get all movies with filters sorts and pagination"""
         director_id = request.args.get('director_id', type=int)
-        genre_id = request.args.get('genre_id', type=int)
+        genre_id = request.args.get('genre_id', type=str)
         year = request.args.get('year', type=int)
 
         status = request.args.get('status', type=str)
@@ -86,14 +87,14 @@ class MovieView(Resource):
         try:
             updated_data = movie_schema.load(request.json)
             movie = movie_service.update(updated_data)
-            return movie, 204
+            return "", 204
         except ValueError as e:
             return jsonify(f"error: {e}")
 
     @admin_required
     @movie_ns.expect(movie_model)
     @movie_ns.marshal_with(movie_model, code=200)
-    def put2(self, movie_id):
+    def patch(self, movie_id):
         try:
             data = movie_schema.load(request.json)
             movie = movie_service.update2(movie_id, data)
