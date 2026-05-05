@@ -42,7 +42,7 @@ class MoviesView(Resource):
     def get(self):
         """Get all movies with filters sorts and pagination"""
         director_id = request.args.get('director_id', type=int)
-        genre_id = request.args.get('genre_id', type=str)
+        genre_id = request.args.get('genre_id', type=int)
         year = request.args.get('year', type=int)
 
         status = request.args.get('status', type=str)
